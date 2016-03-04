@@ -3,6 +3,7 @@ __author__ = 'rubico'
 from HTMLParser import HTMLParser
 from Models import Url
 
+
 class UrlExtractor(HTMLParser):
     
     ANCHOR_TAG = 'a'
