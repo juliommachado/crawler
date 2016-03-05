@@ -1,6 +1,9 @@
+from Models.Page import Page
+
 __author__ = 'rubico'
 
 from threading import Thread
+import urllib2
 import time
 
 
@@ -22,7 +25,14 @@ class Fetcher(Thread):
             
     def do(self):
         if self.work is not None:
-            print self.work
+            self.fetch_url()
+
+    def fetch_url(self):
+        request = urllib2.Request(self.work.url)
+        response = urllib2.urlopen(request)
+        html = response.read()
+        page = Page(self.work, html)
+        page.save()
         
     def run(self):
         while True:

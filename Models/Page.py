@@ -31,4 +31,3 @@ class Page:
             
     def save(self):
         self.connection.execute('INSERT INTO Page (url_id, html, parsed) VALUES (?, ?, ?)', (self.url.id, self.html, self.parsed))
-        
