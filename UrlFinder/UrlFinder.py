@@ -1,28 +1,31 @@
-from UrlClassifier import UrlClassifier, UrlClasses
-from UrlExtractor import UrlExtractor
-
 __author__ = 'rubico'
 
 from threading import Thread
+from Models.Page import Page
+from UrlClassifier import UrlClassifier, UrlClasses
+from UrlExtractor import UrlExtractor
 
 
 class UrlFinder(Thread):
-    
+
+    dispatcher = None
     connection = None
     url_extractor = None
     page = None
     
-    
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dispatcher, *args, **kwargs):
         Thread.__init__(self, *args, **kwargs)
+        self.dispatcher = dispatcher
         self.url_extractor = UrlExtractor()
-        pass #Let's pretend that the connection is working ;)
         self.start()
         
     def look_for_page(self):
-        pass #goes to the database and gets only one page
-        #return None in case of no page without parse.
- 
+        result = self.connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE is_parsed = False LIMIT 1')
+
+        self.page = None
+        if result is not None:
+            self.page = Page(tuple=result[0])
+
     def run(self):
         while True:
             self.look_for_page()
@@ -37,3 +40,7 @@ class UrlFinder(Thread):
                         urls.remove(url)
                     elif url_classifier.classify(url) == UrlClasses.FETCH and url.fetch_id() is not None:
                         urls.remove(url)
+                    url.save()
+
+                self.page.mark_as_parsed()
+                self.dispatcher.fill_pool(urls)
