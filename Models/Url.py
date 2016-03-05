@@ -13,12 +13,12 @@ class Url:
     id = None
     url = None
     
-    def __init__(self, url, url_master, *args, **kwargs):
+    def __init__(self, url=None, url_master=None, *args, **kwargs):
         if kwargs.has_key('tuple'):
             self.id = kwargs['tuple'][Url.ID_POSITION]
-            self.__set_url__(url, url_master)
+            self.__set_url__(kwargs['tuple'][Url.URL_POSITION], url_master)
         else:
-            self.url = url
+            self.__set_url__(url, url_master)
 
     def fetch_id(self):
         id = self.connection.execute('SELECT id FROM Url WHERE url LIKE ?', (self.url,))
@@ -31,6 +31,7 @@ class Url:
         if id is None and self.id is None:
             self.connection.execute('INSERT INTO Url (url) VALUES(?)', (self.url,))
             self.id = self.fetch_id()
+            pass
 
     def get_host(self):
         parsed_uri = urlparse(self.url)

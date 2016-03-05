@@ -29,13 +29,18 @@ class Fetcher(Thread):
 
     def fetch_url(self):
         request = urllib2.Request(self.work.url)
-        response = urllib2.urlopen(request)
-        html = response.read()
-        page = Page(self.work, html)
-        page.save()
+        try:
+            response = urllib2.urlopen(request)
+            html = response.read()
+            page = Page(self.work, html)
+            page.save()
+            print self.work.url
+        except: #If something went wrong, forget about it. On the next time it will try again: ;)
+            print '\n ### '+self.work.url+'\n'
         
     def run(self):
         while True:
-            time.sleep(7)
             self.get_work()
-            self.do()
+            if self.work:
+                self.do()
+                time.sleep(7)

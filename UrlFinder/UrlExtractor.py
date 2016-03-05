@@ -24,4 +24,8 @@ class UrlExtractor(HTMLParser):
     def feed(self, page):
         self.urls = [] #Cleaning old urls
         self.page = page
-        HTMLParser.feed(self, page.html)
+        try:
+            html = str(page.html).decode('utf-8')
+        except:
+            html = str(page.html)
+        HTMLParser.feed(self, html)

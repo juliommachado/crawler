@@ -1,3 +1,5 @@
+from sqlite3 import OperationalError
+
 __author__ = 'rubico'
 
 from threading import Thread
@@ -23,7 +25,11 @@ class UrlFinder(Thread):
         self.start()
         
     def look_for_page(self):
-        result = self.connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE is_parsed = 1 LIMIT 1')
+        result = None
+        try:
+            result = self.connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE is_parsed = 0 LIMIT 1')
+        except OperationalError:
+            print '\n Database on lock \n'
 
         self.page = None
         if result is not None:
@@ -38,12 +44,13 @@ class UrlFinder(Thread):
 
                 #Classify all the urls
                 url_classifier = UrlClassifier(self.page)
-                for url in urls:
+                for url in urls[:]:
                     if url_classifier.classify(url) == UrlClasses.TRASH:
                         urls.remove(url)
                     elif url_classifier.classify(url) == UrlClasses.FETCH and url.fetch_id() is not None:
                         urls.remove(url)
-                    url.save()
+                    else:
+                        url.save()
 
                 self.page.mark_as_parsed()
                 self.dispatcher.fill_pool(urls)
