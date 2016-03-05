@@ -13,7 +13,13 @@ class Connection:
     def execute(self, command, *args):
         conn = sqlite3.connect(self.file_name)
         cursor = conn.cursor()
-        data = cursor.execute(command, *args)
+        cursor = cursor.execute(command, *args)
+        data = []
+        for row in cursor:
+            data.append(row)
         conn.commit()
         conn.close()
+
+        if not data:
+            return None
         return data

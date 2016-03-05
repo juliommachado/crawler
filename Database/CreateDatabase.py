@@ -1,4 +1,4 @@
-from Database import Connection
+from Connection import Connection
 
 ''' This should be created using something more powerful for a crawler, like mongodb.
     But for now I'm doing everything with my sparetime in a place with a lot of restrictions,

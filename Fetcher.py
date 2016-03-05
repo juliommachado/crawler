@@ -17,8 +17,8 @@ class Fetcher(Thread):
         
     def get_work(self):
         self.work = None
-        if dispatcher.has_work():
-            self.work = dispatcher.get_work()
+        if self.dispatcher.has_work():
+            self.work = self.dispatcher.get_work()
             
     def do(self):
         if self.work is not None:
