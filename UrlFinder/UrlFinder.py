@@ -4,6 +4,8 @@ from threading import Thread
 from Models.Page import Page
 from UrlClassifier import UrlClassifier, UrlClasses
 from UrlExtractor import UrlExtractor
+from Database.Connection import Connection
+import Settings
 
 
 class UrlFinder(Thread):
@@ -15,12 +17,13 @@ class UrlFinder(Thread):
     
     def __init__(self, dispatcher, *args, **kwargs):
         Thread.__init__(self, *args, **kwargs)
+        self.connection = Connection(Settings.sqllite_file_location)
         self.dispatcher = dispatcher
         self.url_extractor = UrlExtractor()
         self.start()
         
     def look_for_page(self):
-        result = self.connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE is_parsed = False LIMIT 1')
+        result = self.connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE is_parsed = 1 LIMIT 1')
 
         self.page = None
         if result is not None:

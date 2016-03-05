@@ -1,6 +1,6 @@
 __author__ = 'rubico'
 
-from Database import Connection
+from Database.Connection import Connection
 import Settings
 
 
@@ -35,8 +35,8 @@ class Page:
         return id[0][Page.ID_POSITION] #It's a list with just one position
 
     def save(self):
-        self.connection.execute('INSERT INTO Page (url_id, html, parsed) VALUES (?, ?, ?)', (self.url.id, self.html, self.parsed))
+        self.connection.execute('INSERT INTO Page (url_id, html, parsed) VALUES (?, ?, ?)', (self.url.id, self.html, 1 if self.parsed else 0))
 
     def mark_as_parsed(self):
-        self.connection.execute('UPDATE Page SET is_parsed = ? WHERE url_id = ?', (True, self.url.id))
+        self.connection.execute('UPDATE Page SET is_parsed = ? WHERE url_id = ?', (1, self.url.id))
         self.parsed = True
