@@ -36,6 +36,6 @@ class Fetcher(Thread):
         
     def run(self):
         while True:
-            time.sleep(3)
+            time.sleep(7)
             self.get_work()
             self.do()
