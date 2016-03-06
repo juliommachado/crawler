@@ -39,18 +39,21 @@ class UrlFinder(Thread):
         while True:
             self.look_for_page()
             if self.page is not None:
-                self.url_extractor.feed(self.page)
-                urls = self.url_extractor.urls
+                try:
+                    self.url_extractor.feed(self.page)
+                    urls = self.url_extractor.urls
 
-                #Classify all the urls
-                url_classifier = UrlClassifier(self.page)
-                for url in urls[:]:
-                    if url_classifier.classify(url) == UrlClasses.TRASH:
-                        urls.remove(url)
-                    elif url_classifier.classify(url) == UrlClasses.FETCH and url.fetch_id() is not None:
-                        urls.remove(url)
-                    else:
-                        url.save()
+                    #Classify all the urls
+                    url_classifier = UrlClassifier(self.page)
+                    for url in urls[:]:
+                        if url_classifier.classify(url) == UrlClasses.TRASH:
+                            urls.remove(url)
+                        elif url_classifier.classify(url) == UrlClasses.FETCH and url.fetch_id() is not None:
+                            urls.remove(url)
+                        else:
+                            url.save()
 
-                self.page.mark_as_parsed()
-                self.dispatcher.fill_pool(urls)
+                    self.page.mark_as_parsed()
+                    self.dispatcher.fill_pool(urls)
+                except:
+                    print '\n ### Database Locked \n'

@@ -1,5 +1,6 @@
 from Models.Url import Url
 import Settings
+import sqlite3
 from Database.Connection import Connection
 
 __author__= 'rubico'
@@ -13,7 +14,12 @@ class Dispatcher:
         self.pool = []
 
         connection = Connection(Settings.sqllite_file_location)
-        results = connection.execute('SELECT id, url FROM Url WHERE id NOT in (SELECT url_id FROM Page)')
+        results = None
+        try:
+            results = connection.execute('SELECT id, url FROM Url WHERE id NOT in (SELECT url_id FROM Page)')
+        except sqlite3.OperationalError:
+            print 'Dispatcher didn\'t load any url, Database on lock'
+
         if results is not None:
             for result in results:
                 url = Url(tuple=result)
