@@ -2,6 +2,7 @@ __author__ = 'rubico'
 
 from HTMLParser import HTMLParser
 from Models.Url import Url
+import re
 
 
 class UrlExtractor(HTMLParser):
@@ -18,7 +19,7 @@ class UrlExtractor(HTMLParser):
         if tag == UrlExtractor.ANCHOR_TAG:
             for attr in attrs:
                 if attr[UrlExtractor.ATTR_NAME] == UrlExtractor.HREF_ATTR:
-                    url = Url(attr[UrlExtractor.ATTR_VALUE], self.page.url.url)
+                    url = Url(UrlExtractor.__normalize_url__(attr[UrlExtractor.ATTR_VALUE]), self.page.url.url)
                     self.urls.append(url)
                     
     def feed(self, page):
@@ -29,3 +30,13 @@ class UrlExtractor(HTMLParser):
         except:
             html = str(page.html)
         HTMLParser.feed(self, html)
+
+    @staticmethod
+    def __normalize_url__(url):
+        regex = '#.*'
+        r = re.compile(regex)
+        url = r.sub('', url) #remove anchor
+        regex = '\?.*'
+        r = re.compile(regex)
+        url = r.sub('', url) #remove parameters
+        return url

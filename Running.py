@@ -1,6 +1,7 @@
 from Dispatcher import Dispatcher
 from Fetcher import Fetcher
 from UrlFinder.UrlFinder import UrlFinder
+import time
 
 __author__ = 'rubico'
 

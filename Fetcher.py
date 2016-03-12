@@ -3,12 +3,15 @@ from Models.Page import Page
 __author__ = 'rubico'
 
 from threading import Thread
+from datetime import datetime
 import urllib2
 import time
 
 
 class Fetcher(Thread):
-    
+
+    wait_time = 7
+
     dispatcher = None
     work = None
     
@@ -16,6 +19,7 @@ class Fetcher(Thread):
         Thread.__init__(self, *args, **kwargs)
         #TODO (rubico) - see if the dispatcher is a istance of Dispatcher or any subclass
         self.dispatcher = dispatcher
+        self.wait_time = kwargs('wait_time') if kwargs.has_key('wait_time') else 7
         self.start()
         
     def get_work(self):
@@ -34,13 +38,14 @@ class Fetcher(Thread):
             html = response.read()
             page = Page(self.work, html)
             page.save()
-            print self.work.url
+            print str(datetime.now()) +' '+ self.work.url
         except: #If something went wrong, forget about it. On the next time it will try again: ;)
-            print '\n ### '+self.work.url+'\n'
+            self.dispatcher.fill_pool([self.work,])
+            print '\n ### '+str(datetime.now())+' ' + self.work.url+'\n'
         
     def run(self):
         while True:
             self.get_work()
             if self.work:
                 self.do()
-                time.sleep(7)
+                time.sleep(self.wait_time)
