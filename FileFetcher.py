@@ -5,43 +5,61 @@ import cgi
 import Settings
 import os
 from Fetcher import Fetcher
-from datetime import datetime
+import time
 
 
 class FileFetcher(Fetcher):
-    """
-        This class is extremely coupled.
-        Need a refactor urgent.
-    """
+
     file = None
-    file_total_size = 0
+    server_file_size = 0
+    file_path = ''
+    refer_url = None
+
+    def __init__(self, dispatcher, *args, **kwargs):
+        self.refer_url = kwargs.get('refer_url', None)
+        super(FileFetcher, self).__init__(dispatcher, *args, **kwargs)
 
     def fetch_url(self):
         request = urllib2.Request(self.work)
-        request.add_header('Referer', Settings.referer)
-        filename = ''
-        file_path = ''
-        try:
-            response = urllib2.urlopen(request)
-            self.file_total_size = int(response.info().getheaders('Content-Length')[0])
-            filename = self.__get_file_name(response)
-            file_path = Settings.storage_path+filename
-            self.file = open(file_path, 'wb+')
-            self.file.write(response.read())
-            self.file.close()
-        except:
-            self.dispatcher.fill_pool([self.work,])
-            print '\n ### '+str(datetime.now())+' ' + self.work.url+'\n'
+        if self.refer_url:
+            request.add_header('Referer', self.refer_url)
 
-        if self.file and not self.__check_file_download(file_path):
-            os.remove(file_path)
-            self.dispatcher.fill_pool([self.work,])
-            print '\tDownload not completed: %s' % (filename,)
+        response = urllib2.urlopen(request)
+        self.__extract_filepath(response)
 
-    def __get_file_name(self, response):
+        content = response.read()
+        self.__write_file(content)
+
+        while not self.__is_download_complete():
+            time.sleep(self.wait_time)
+            self.__resume_download()
+
+    def __extract_filepath(self, response):
         _, params = cgi.parse_header(response.headers.get('Content-Disposition', ''))
-        filename = params['filename']
-        return filename
+        file_name = params['filename']
+        self.file_path = Settings.storage_path + file_name
 
-    def __check_file_download(self, file_path):
-        return os.stat(file_path).st_size == self.file_total_size
+    def __get_server_file_size(self, response):
+        self.server_file_size = int(response.info().getheaders('Content-Length')[0])
+
+    def __get_local_file_size(self):
+        return os.stat(self.file_path).st_size
+
+    def __is_download_complete(self):
+        return self.__get_local_file_size() == self.server_file_size
+
+    def __resume_download(self):
+        request = urllib2.Request(urllib2)
+        if self.refer_url:
+            request.add_header('Referer', self.refer_url)
+        request.add_header('Range', 'bytes=%d-' % (self.__get_local_file_size(),))
+
+        response = urllib2.urlopen(request)
+        content = response.read()
+        self.__write_file(content, 'ab+')
+
+    def __write_file(self, content, mode='wb+'):
+        self.file = open(self.file_path, mode)
+        self.file.write(content)
+        self.file.close()
+

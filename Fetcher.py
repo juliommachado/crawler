@@ -11,7 +11,6 @@ import time
 class Fetcher(Thread):
 
     wait_time = 7
-
     dispatcher = None
     work = None
     
@@ -19,7 +18,7 @@ class Fetcher(Thread):
         Thread.__init__(self, *args, **kwargs)
         #TODO (rubico) - see if the dispatcher is a istance of Dispatcher or any subclass
         self.dispatcher = dispatcher
-        self.wait_time = kwargs('wait_time') if kwargs.has_key('wait_time') else 7
+        self.wait_time = kwargs.get('wait_time', 7)
         self.start()
         
     def get_work(self):
