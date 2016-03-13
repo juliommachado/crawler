@@ -67,5 +67,6 @@ target/
 #PyCharm Folder
 .idea/*
 
-#Remove Settings
+#Remove files that should contain personal information
 Settings.py
+Running.py
