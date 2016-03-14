@@ -12,12 +12,13 @@ class UrlManager:
     @staticmethod
     def get_by_id(id):
         result = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id ?', (id,))
-        return Url(tuple=result) if result is not None else None
+        return Url(tuple=result[0]) if result else None
 
 
     @staticmethod
     def get_by_url(url):
-        return UrlManager.__connection.execute('SELECT id, url FROM Url WHERE url LIKE ?', (url,))
+        result = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE url LIKE ?', (url,))
+        return Url(tuple=result[0]) if result else None
 
     @staticmethod
     def exists(url):
@@ -37,7 +38,14 @@ class UrlManager:
                 'INSERT INTO Url(url) VALUES (?)',
                 (url_object.url,)
             )
+        return UrlManager.get_by_url(url_object.url)
 
     @staticmethod
     def get_pending_urls():
-        return UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id NOT in (SELECT url_id FROM Page)')
+        results = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id NOT in (SELECT url_id FROM Page)')
+        urls = []
+        for result in results:
+            url = Url(tuple=result)
+            urls.append(url)
+
+        return urls if urls else None

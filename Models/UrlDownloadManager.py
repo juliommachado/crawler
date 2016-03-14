@@ -1,3 +1,5 @@
+from Models.UrlDownload import UrlDownload
+
 __author__ = 'rubico'
 
 from Database.Connection import Connection
@@ -10,11 +12,13 @@ class UrlDownloadManager:
 
     @staticmethod
     def get_by_id(id):
-        return UrlDownloadManager.__connection.execute('SELECT id, url, is_downloaded FROM UrlDownload WHERE id ?', (id,))
+        result = UrlDownloadManager.__connection.execute('SELECT id, url, is_downloaded FROM UrlDownload WHERE id ?', (id,))
+        return UrlDownload(tuple=result[0]) if result else None
 
     @staticmethod
     def get_by_url(url):
-        return UrlDownloadManager.__connection.execute('SELECT id, url, is_downloaded FROM UrlDownload WHERE url LIKE ?', (url,))
+        result = UrlDownloadManager.__connection.execute('SELECT id, url, is_downloaded FROM UrlDownload WHERE url LIKE ?', (url,))
+        return UrlDownload(tuple=result[0]) if result else None
 
     @staticmethod
     def exists(url):
@@ -34,3 +38,16 @@ class UrlDownloadManager:
                 'INSERT INTO UrlDownload(url, is_downloaded) VALUES (?, ?)',
                 (url_download_object.url, False)
             )
+        return UrlDownloadManager.get_by_url(url_download_object.url)
+
+    @staticmethod
+    def get_pending_download_urls():
+        results = UrlDownloadManager.__connection.execute(
+            'SELECT id, url, is_downloaded FROM UrlDownload WHERE is_downloaded = 0'
+        )
+        download_urls = []
+        for result in results:
+            download_url = UrlDownload(tuple=result)
+            download_urls.append(download_url)
+
+        return download_urls if download_urls else None

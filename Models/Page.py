@@ -33,7 +33,3 @@ class Page:
 
     def save(self):
         Page.manager.save(self)
-
-    def mark_as_parsed(self):
-        Page.manager.set_as_parsed(self)
-        Page.parsed = True

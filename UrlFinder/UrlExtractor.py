@@ -19,7 +19,7 @@ class UrlExtractor(HTMLParser):
         if tag == UrlExtractor.ANCHOR_TAG:
             for attr in attrs:
                 if attr[UrlExtractor.ATTR_NAME] == UrlExtractor.HREF_ATTR:
-                    url = Url(UrlExtractor.__normalize_url__(attr[UrlExtractor.ATTR_VALUE]), self.page.url.url)
+                    url = Url(UrlExtractor.__normalize_url(attr[UrlExtractor.ATTR_VALUE]), self.page.url.url)
                     self.urls.append(url)
                     
     def feed(self, page):
@@ -31,8 +31,7 @@ class UrlExtractor(HTMLParser):
             html = str(page.html)
         HTMLParser.feed(self, html)
 
-    @staticmethod
-    def __normalize_url__(url):
+    def __normalize_url(url):
         regex = '#.*'
         r = re.compile(regex)
         url = r.sub('', url) #remove anchor

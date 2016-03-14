@@ -5,6 +5,7 @@ from sqlite3 import OperationalError
 import time
 
 from Models.Page import Page
+from Models.UrlDownload import UrlDownload
 from UrlClassifier import UrlClassifier, UrlClasses
 from Models.Url import Url
 
@@ -46,6 +47,7 @@ class UrlFinder(Thread):
             self.page = Page(tuple=result[0])
 
     def run(self):
+        self.__resume_crawling()
         while True:
             self.look_for_page()
             if self.page is not None:
@@ -60,6 +62,21 @@ class UrlFinder(Thread):
             else:
                 time.sleep(7)
 
+    def __resume_crawling(self):
+        urls = self.__get_pending_urls()
+        if urls:
+            self.dispatcher.fill_pool(urls)
+        if self.download_dispatcher:
+            download_urls = self.__get_pending_download_urls()
+            if download_urls:
+                self.download_dispatcher.fill_pool(download_urls)
+
+    def __get_pending_urls(self):
+        return Url.manager.get_pending_urls()
+
+    def __get_pending_download_urls(self):
+        return UrlDownload.manager.get_pending_download_urls()
+
     def __get_pending_page(self):
         return Page.manager.get_pending_page()
 
@@ -71,10 +88,10 @@ class UrlFinder(Thread):
             if _class == UrlClasses.TRASH:
                 urls.remove(url)
             elif _class == UrlClasses.DOWNLOAD:
-                urls_download.append(url)
-                urls.remove(url)
                 url_download = url.to_urldownload()
+                urls_download.append(url_download)
                 url_download.save()
+                urls.remove(url)
             elif _class == UrlClasses.FETCH and Url.manager.exists(url.url):
                 urls.remove(url)
             else:
