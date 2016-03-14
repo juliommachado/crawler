@@ -1,3 +1,5 @@
+from Models.UrlDownload import UrlDownload
+
 __author__ = 'rubico'
 
 from Models import UrlManager
@@ -37,3 +39,9 @@ class Url:
         self.url = url
         if self.is_relative():
             self.url = urljoin(url_master, self.url)
+
+    def to_urldownload(self):
+        url_download = UrlDownload()
+        url_download.url = self.url
+        url_download.is_downloaded = False
+        return url_download

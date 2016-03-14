@@ -17,6 +17,9 @@ class UrlDownload:
             self.id = kwargs['tuple'][UrlDownload.ID_POSITION]
             self.url = self.__set_url(self, url, url_master)
             self.is_downloaded = is_downloaded
+        else:
+            self.url = url
+            self.is_downloaded = is_downloaded
 
     def save(self):
         self.manager.save(self)

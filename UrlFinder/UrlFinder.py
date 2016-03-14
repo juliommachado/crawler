@@ -5,6 +5,7 @@ from Models.Page import Page
 from UrlClassifier import UrlClassifier, UrlClasses
 from sqlite3 import OperationalError
 from Models.Url import Url
+import time
 import Dispatcher
 from UrlExtractor import UrlExtractor
 from Database.Connection import Connection
@@ -14,6 +15,7 @@ import Settings
 class UrlFinder(Thread):
 
     dispatcher = None
+    download_dispatcher = None
     connection = None
     url_extractor = None
     page = None
@@ -30,6 +32,9 @@ class UrlFinder(Thread):
         self.url_extractor = kwargs.get('url_extractor', None)
         if self.url_extractor is None:
             raise Exception('UrlFinder needs an extractor to work properly')
+        self.download_dispatcher = kwargs.get('download_dispatcher', None)
+        if self.download_dispatcher is None:
+            print 'Download dispatcher not defined.'
         self.start()
         
     def look_for_page(self):
@@ -52,19 +57,32 @@ class UrlFinder(Thread):
                     urls = self.url_extractor.urls
 
                     #Classify all the urls
-                    url_classifier = UrlClassifier(self.page)
-                    for url in urls[:]:
-                        if url_classifier.classify(url) == UrlClasses.TRASH:
-                            urls.remove(url)
-                        elif url_classifier.classify(url) == UrlClasses.FETCH and Url.manager.exists(url.url):
-                            urls.remove(url)
-                        else:
-                            url.save()
-
-                    self.page.mark_as_parsed()
-                    self.dispatcher.fill_pool(urls)
+                    self.__classify_urls(urls)
                 except OperationalError:
                     print '\n Database on lock \n'
+            else:
+                time.sleep(7)
 
     def __get_pending_page(self):
         return Page.manager.get_pending_page()
+
+    def __classify_urls(self, urls):
+        urls_download = []
+        url_classifier = UrlClassifier(self.page)
+        for url in urls[:]:
+            _class = url_classifier.classify(url)
+            if _class == UrlClasses.TRASH:
+                urls.remove(url)
+            elif _class == UrlClasses.DOWNLOAD:
+                urls_download.append(url)
+                urls.remove(url)
+                url_download = url.to_urldownload()
+                url_download.save()
+            elif _class == UrlClasses.FETCH and Url.manager.exists(url.url):
+                urls.remove(url)
+            else:
+                url.save()
+
+        self.page.mark_as_parsed()
+        self.dispatcher.fill_pool(urls)
+        self.download_dispatcher.fill_pool(urls_download)
