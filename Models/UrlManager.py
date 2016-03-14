@@ -1,3 +1,5 @@
+from Models.Url import Url
+
 __author__ = 'rubico'
 
 from Database.Connection import Connection
@@ -10,7 +12,9 @@ class UrlManager:
 
     @staticmethod
     def get_by_id(id):
-        return UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id ?', (id,))
+        result = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id ?', (id,))
+        return Url(tuple=result) if result is not None else None
+
 
     @staticmethod
     def get_by_url(url):
