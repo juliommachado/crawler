@@ -7,16 +7,16 @@ __author__= 'rubico'
 
 
 class Dispatcher:
-    connection = None
     pool = None
     
     def __init__(self, *args, **kwargs):
         self.pool = []
-
-        connection = Connection(Settings.sqllite_file_location)
+        self.connection = kwargs.get('connection', None)
+        if self.connection is None:
+            raise Exception('Dispatcher needs a connection to work properly')
         results = None
         try:
-            results = connection.execute('SELECT id, url FROM Url WHERE id NOT in (SELECT url_id FROM Page)')
+            results = self.__get_pending_pool()
         except sqlite3.OperationalError:
             print 'Dispatcher didn\'t load any url, Database on lock'
 
@@ -33,3 +33,6 @@ class Dispatcher:
         
     def fill_pool(self, workload):
         self.pool = self.pool + workload
+
+    def __get_pending_pool(self):
+        return Url.manager.get_pending_urls()
