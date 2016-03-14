@@ -27,7 +27,7 @@ class UrlDownloadManager:
         if database_url is not None:
             UrlDownloadManager.__connection.execute(
                 'UPDATE UrlDownload SET url = ?, is_downloaded = ? WHERE id = ?',
-                (url_download_object.url, url_download_object.is_downloaded, database_url)
+                (url_download_object.url, url_download_object.is_downloaded, database_url.id)
             )
         else:
             UrlDownloadManager.__connection.execute(
