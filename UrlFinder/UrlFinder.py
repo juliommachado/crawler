@@ -1,15 +1,12 @@
 __author__ = 'rubico'
 
 from threading import Thread
+from sqlite3 import OperationalError
+import time
+
 from Models.Page import Page
 from UrlClassifier import UrlClassifier, UrlClasses
-from sqlite3 import OperationalError
 from Models.Url import Url
-import time
-import Dispatcher
-from UrlExtractor import UrlExtractor
-from Database.Connection import Connection
-import Settings
 
 
 class UrlFinder(Thread):

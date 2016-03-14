@@ -1,7 +1,6 @@
-from Models.Url import Url
-
 __author__ = 'rubico'
 
+from Models.Url import Url
 from Database.Connection import Connection
 import Settings
 

@@ -1,7 +1,7 @@
+__author__ = 'rubico'
+
 from Database.Connection import Connection
 import Settings
-
-__author__ = 'rubico'
 
 
 class UrlDownloadManager:

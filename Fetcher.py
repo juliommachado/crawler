@@ -1,11 +1,11 @@
-from Models.Page import Page
-
 __author__ = 'rubico'
 
 from threading import Thread
 from datetime import datetime
 import urllib2
 import time
+
+from Models.Page import Page
 
 
 class Fetcher(Thread):

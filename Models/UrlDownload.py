@@ -1,7 +1,8 @@
 __author__ = 'rubico'
 
-from Models import UrlDownloadManager
 from urlparse import urlparse, urljoin
+
+from Models import UrlDownloadManager
 
 
 class UrlDownload:

@@ -1,11 +1,9 @@
-from Models.UrlDownload import UrlDownload
-
 __author__ = 'rubico'
 
-from Models import UrlManager
 from urlparse import urlparse, urljoin
-from Database.Connection import Connection
-import Settings
+
+from Models.UrlDownload import UrlDownload
+from Models import UrlManager
 
 
 class Url:

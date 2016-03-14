@@ -2,10 +2,11 @@ __author__ = 'rubico'
 
 import urllib2
 import cgi
-import Settings
 import os
-from Fetcher import Fetcher
 import time
+
+import Settings
+from Fetcher import Fetcher
 
 
 class FileFetcher(Fetcher):

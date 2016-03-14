@@ -1,9 +1,7 @@
-from Models.Url import Url
-import Settings
-import sqlite3
-from Database.Connection import Connection
-
 __author__= 'rubico'
+
+import sqlite3
+from Models.Url import Url
 
 
 class Dispatcher:
