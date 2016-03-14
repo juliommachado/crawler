@@ -35,7 +35,7 @@ class UrlFinder(Thread):
     def look_for_page(self):
         result = None
         try:
-            result = self.__get_pending_urls()
+            result = self.__get_pending_page()
         except OperationalError:
             print '\n Database on lock \n'
 
@@ -66,5 +66,5 @@ class UrlFinder(Thread):
                 except OperationalError:
                     print '\n Database on lock \n'
 
-    def __get_pending_urls(self):
-        return Url.manager.get_pending_urls()
+    def __get_pending_page(self):
+        return Page.manager.get_pending_page()
