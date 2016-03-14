@@ -1,12 +1,15 @@
 __author__ = 'rubico'
 
+from Models import UrlManager
 from urlparse import urlparse, urljoin
 from Database.Connection import Connection
 import Settings
 
+
 class Url:
     
-    connection = Connection(Settings.sqllite_file_location)
+    manager = UrlManager
+
     ID_POSITION = 0
     URL_POSITION = 1
 
@@ -20,18 +23,8 @@ class Url:
         else:
             self.__set_url__(url, url_master)
 
-    def fetch_id(self):
-        id = self.connection.execute('SELECT id FROM Url WHERE url LIKE ?', (self.url,))
-        if id is None:
-            return None
-        return id[0][Url.ID_POSITION] #It's a list with just one position
-
     def save(self):
-        id = self.fetch_id()
-        if id is None and self.id is None:
-            self.connection.execute('INSERT INTO Url (url) VALUES(?)', (self.url,))
-            self.id = self.fetch_id()
-            pass
+        Url.manager.save(self)
 
     def get_host(self):
         parsed_uri = urlparse(self.url)

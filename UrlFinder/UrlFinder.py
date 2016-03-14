@@ -1,10 +1,11 @@
-from sqlite3 import OperationalError
-
 __author__ = 'rubico'
 
 from threading import Thread
 from Models.Page import Page
 from UrlClassifier import UrlClassifier, UrlClasses
+from sqlite3 import OperationalError
+from Models.Url import Url
+import Dispatcher
 from UrlExtractor import UrlExtractor
 from Database.Connection import Connection
 import Settings
@@ -16,18 +17,25 @@ class UrlFinder(Thread):
     connection = None
     url_extractor = None
     page = None
+    download_pattern = ''
     
-    def __init__(self, dispatcher, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         Thread.__init__(self, *args, **kwargs)
-        self.connection = Connection(Settings.sqllite_file_location)
-        self.dispatcher = dispatcher
-        self.url_extractor = UrlExtractor()
+        self.connection = kwargs.get('connection', None)
+        if self.connection is None:
+            raise Exception('UrlFinder needs a connection to work properly.')
+        self.dispatcher = kwargs.get('dispatcher', None)
+        if self.dispatcher is None:
+            raise Exception('UrlFinder needs a dispatcher to work properly')
+        self.url_extractor = kwargs.get('url_extractor', None)
+        if self.url_extractor is None:
+            raise Exception('UrlFinder needs an extractor to work properly')
         self.start()
         
     def look_for_page(self):
         result = None
         try:
-            result = self.connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE is_parsed = 0 LIMIT 1')
+            result = self.__get_pending_urls()
         except OperationalError:
             print '\n Database on lock \n'
 
@@ -48,12 +56,15 @@ class UrlFinder(Thread):
                     for url in urls[:]:
                         if url_classifier.classify(url) == UrlClasses.TRASH:
                             urls.remove(url)
-                        elif url_classifier.classify(url) == UrlClasses.FETCH and url.fetch_id() is not None:
+                        elif url_classifier.classify(url) == UrlClasses.FETCH and Url.manager.exists(url.url):
                             urls.remove(url)
                         else:
                             url.save()
 
                     self.page.mark_as_parsed()
                     self.dispatcher.fill_pool(urls)
-                except:
-                    print '\n ### Database Locked \n'
+                except OperationalError:
+                    print '\n Database on lock \n'
+
+    def __get_pending_urls(self):
+        return Url.manager.get_pending_urls()
