@@ -1,9 +1,12 @@
+
+
 __author__ = 'rubico'
 
 from threading import Thread
 from sqlite3 import OperationalError
 import time
 
+from UrlExtractor import UrlExtractor
 from Models.Page import Page
 from Models.UrlDownload import UrlDownload
 from UrlClassifier import UrlClassifier, UrlClasses
@@ -14,25 +17,24 @@ class UrlFinder(Thread):
 
     dispatcher = None
     download_dispatcher = None
-    connection = None
     url_extractor = None
     page = None
     download_pattern = ''
     
     def __init__(self, *args, **kwargs):
         Thread.__init__(self, *args, **kwargs)
-        self.connection = kwargs.get('connection', None)
-        if self.connection is None:
-            raise Exception('UrlFinder needs a connection to work properly.')
         self.dispatcher = kwargs.get('dispatcher', None)
         if self.dispatcher is None:
             raise Exception('UrlFinder needs a dispatcher to work properly')
         self.url_extractor = kwargs.get('url_extractor', None)
         if self.url_extractor is None:
-            raise Exception('UrlFinder needs an extractor to work properly')
+            self.url_extractor = UrlExtractor()
         self.download_dispatcher = kwargs.get('download_dispatcher', None)
         if self.download_dispatcher is None:
             print 'Download dispatcher not defined.'
+        self.download_patter = kwargs.get('download_pattern', None)
+        if self.download_pattern is None:
+            print 'Download pattern not defined'
         self.start()
         
     def look_for_page(self):
@@ -81,22 +83,26 @@ class UrlFinder(Thread):
         return Page.manager.get_pending_page()
 
     def __classify_urls(self, urls):
-        urls_download = []
-        url_classifier = UrlClassifier(self.page)
+        download_urls = []
+        url_classifier = UrlClassifier(self.page, self.download_pattern)
         for url in urls[:]:
             _class = url_classifier.classify(url)
             if _class == UrlClasses.TRASH:
                 urls.remove(url)
             elif _class == UrlClasses.DOWNLOAD:
-                url_download = url.to_urldownload()
-                urls_download.append(url_download)
-                url_download.save()
-                urls.remove(url)
+                if self.download_dispatcher:
+                    url_download = url.to_urldownload()
+                    download_urls.append(url_download)
+                    url_download.save()
+                    urls.remove(url)
             elif _class == UrlClasses.FETCH and Url.manager.exists(url.url):
                 urls.remove(url)
             else:
                 url.save()
 
-        self.page.mark_as_parsed()
+        self.page.is_parsed = True
+        self.page.save()
+
         self.dispatcher.fill_pool(urls)
-        self.download_dispatcher.fill_pool(urls_download)
+        if self.download_dispatcher:
+            self.download_dispatcher.fill_pool(download_urls)

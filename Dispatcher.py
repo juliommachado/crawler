@@ -1,9 +1,5 @@
 __author__= 'rubico'
 
-import sqlite3
-from Models.Url import Url
-
-
 class Dispatcher:
     pool = None
     

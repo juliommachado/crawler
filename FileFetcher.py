@@ -19,6 +19,7 @@ class FileFetcher(Fetcher):
     def __init__(self, dispatcher, *args, **kwargs):
         super(FileFetcher, self).__init__(dispatcher, *args, **kwargs)
         self.refer_url = kwargs.get('refer_url', None)
+        self.start()
 
     def fetch_url(self):
         request = urllib2.Request(self.work)

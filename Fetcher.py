@@ -18,6 +18,7 @@ class Fetcher(Thread):
         Thread.__init__(self, *args, **kwargs)
         self.dispatcher = dispatcher
         self.wait_time = kwargs.get('wait_time', 7)
+        self.start()
         
     def request_work(self):
         self.work = None

@@ -1,8 +1,7 @@
-from Models.UrlDownload import UrlDownload
-
 __author__ = 'rubico'
 
 from Database.Connection import Connection
+import Models
 import Settings
 
 
@@ -13,12 +12,12 @@ class UrlDownloadManager:
     @staticmethod
     def get_by_id(id):
         result = UrlDownloadManager.__connection.execute('SELECT id, url, is_downloaded FROM UrlDownload WHERE id ?', (id,))
-        return UrlDownload(tuple=result[0]) if result else None
+        return Models.UrlDownload.UrlDownload(tuple=result[0]) if result else None
 
     @staticmethod
     def get_by_url(url):
         result = UrlDownloadManager.__connection.execute('SELECT id, url, is_downloaded FROM UrlDownload WHERE url LIKE ?', (url,))
-        return UrlDownload(tuple=result[0]) if result else None
+        return Models.UrlDownload.UrlDownload(tuple=result[0]) if result else None
 
     @staticmethod
     def exists(url):
@@ -47,7 +46,7 @@ class UrlDownloadManager:
         )
         download_urls = []
         for result in results:
-            download_url = UrlDownload(tuple=result)
+            download_url = Models.UrlDownload.UrlDownload(tuple=result)
             download_urls.append(download_url)
 
         return download_urls if download_urls else None

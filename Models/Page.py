@@ -1,6 +1,6 @@
 __author__ = 'rubico'
 
-from Models import PageManager
+from Models.PageManager import PageManager
 from Models.Url import Url
 
 

@@ -1,6 +1,6 @@
 __author__ = 'rubico'
 
-from Models.Url import Url
+import Models
 from Database.Connection import Connection
 import Settings
 
@@ -12,13 +12,12 @@ class UrlManager:
     @staticmethod
     def get_by_id(id):
         result = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id ?', (id,))
-        return Url(tuple=result[0]) if result else None
-
+        return Models.Url.Url(tuple=result[0]) if result else None
 
     @staticmethod
     def get_by_url(url):
         result = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE url LIKE ?', (url,))
-        return Url(tuple=result[0]) if result else None
+        return Models.Url.Url(tuple=result[0]) if result else None
 
     @staticmethod
     def exists(url):
@@ -45,7 +44,7 @@ class UrlManager:
         results = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id NOT in (SELECT url_id FROM Page)')
         urls = []
         for result in results:
-            url = Url(tuple=result)
+            url = Models.Url.Url(tuple=result)
             urls.append(url)
 
         return urls if urls else None

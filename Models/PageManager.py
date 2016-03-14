@@ -1,7 +1,6 @@
-from Models.Page import Page
-
 __author__ = 'rubico'
 
+import Models
 from Database.Connection import Connection
 import Settings
 
@@ -13,14 +12,14 @@ class PageManager:
     @staticmethod
     def get_by_id(id):
         result = PageManager.__connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE id = ?', (id,))
-        return Page(tuple=result[0]) if result else None
+        return Models.Page.Page(tuple=result[0]) if result else None
 
     @staticmethod
     def get_by_url_id(url_id):
         result = PageManager.__connection.execute(
             'SELECT id, url_id, html, is_parsed FROM Page WHERE url_id = ?', (url_id,)
         )
-        return Page(tuple=result[0]) if result else None
+        return Models.Page.Page(tuple=result[0]) if result else None
 
     @staticmethod
     def save(page_object):
@@ -40,4 +39,4 @@ class PageManager:
     @staticmethod
     def get_page_not_parsed():
         result = PageManager.__connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE is_parsed = 0 LIMIT 1')
-        return Page(tuple=result[0]) if result else None
+        return Models.Page.Page(tuple=result[0]) if result else None
