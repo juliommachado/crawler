@@ -19,19 +19,19 @@ class UrlExtractor(HTMLParser):
         if tag == UrlExtractor.ANCHOR_TAG:
             for attr in attrs:
                 if attr[UrlExtractor.ATTR_NAME] == UrlExtractor.HREF_ATTR:
-                    url = Url(UrlExtractor.__normalize_url(attr[UrlExtractor.ATTR_VALUE]), self.page.url.url)
+                    url = Url(self.__normalize_url(attr[UrlExtractor.ATTR_VALUE]), self.page.url.url)
                     self.urls.append(url)
                     
     def feed(self, page):
         self.urls = [] #Cleaning old urls
         self.page = page
         try:
-            html = str(page.html).decode('utf-8')
+            html = unicode(str(page.html).decode('utf-8'))
         except:
-            html = str(page.html)
+            html = unicode(page.html, errors='ignore')
         HTMLParser.feed(self, html)
 
-    def __normalize_url(url):
+    def __normalize_url(self, url):
         regex = '#.*'
         r = re.compile(regex)
         url = r.sub('', url) #remove anchor

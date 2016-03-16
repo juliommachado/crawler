@@ -1,3 +1,5 @@
+import sqlite3
+
 __author__ = 'rubico'
 
 from threading import Thread
@@ -32,12 +34,22 @@ class Fetcher(Thread):
     def fetch_url(self):
         request = urllib2.Request(self.work.url)
 
-        response = urllib2.urlopen(request)
-        html = response.read()
-        page = Page(self.work, html)
-        page.save()
-        print str(datetime.now()) +' '+ self.work.url
-        
+        try:
+            response = urllib2.urlopen(request)
+            html = buffer(response.read())
+            page = Page(self.work, html)
+            page.save()
+            print str(datetime.now())+': '+self.work.url
+        except urllib2.URLError:
+            self.dispatcher.fill_pool([self.work,])
+            print '\n'+str(datetime.now())+': '+self.work.url+'\n'
+        except sqlite3.OperationalError:
+            self.dispatcher.fill_pool([self.work,])
+            print '\n'+str(datetime.now())+': Database in lock - '+self.work.url+'\n'
+        except:
+            self.dispatcher.fill_pool([self.work,])
+            print '\n'+str(datetime.now())+': '+self.work.url+'\n'
+
     def run(self):
         while True:
             self.request_work()

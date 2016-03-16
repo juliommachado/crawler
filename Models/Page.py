@@ -16,7 +16,7 @@ class Page:
     id = None
     html = None
     url = None
-    parsed = False
+    is_parsed = False
     
     def __init__(self, url=None, html=None, *args, **kwargs):
         if kwargs.has_key('tuple'):
@@ -25,11 +25,11 @@ class Page:
             self.url = Url.manager.get_by_id(kwargs['tuple'][Page.URL_POSITION])
 
             self.html = kwargs['tuple'][Page.HTML_POSITION]
-            self.parsed = kwargs['tuple'][Page.PARSED_POSITION]
+            self.is_parsed = kwargs['tuple'][Page.PARSED_POSITION]
         else:
             self.url = url
             self.html = html
-            self.parsed = False
+            self.is_parsed = False
 
     def save(self):
-        Page.manager.save(self)
+        return Page.manager.save(self)

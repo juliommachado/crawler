@@ -31,12 +31,12 @@ class PageManager:
         else:
             PageManager.__connection.execute(
                 'INSERT INTO Page(url_id, html, is_parsed) VALUES (?, ?, ?)',
-                (page_object.url.id,page_object.html, page_object.is_parsed)
+                (page_object.url.id, page_object.html, page_object.is_parsed)
             )
         return PageManager.get_by_url_id(page_object.url.id)
 
 
     @staticmethod
-    def get_page_not_parsed():
+    def get_pending_page():
         result = PageManager.__connection.execute('SELECT id, url_id, html, is_parsed FROM Page WHERE is_parsed = 0 LIMIT 1')
         return Models.Page.Page(tuple=result[0]) if result else None

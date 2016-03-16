@@ -11,7 +11,7 @@ class UrlDownloadManager:
 
     @staticmethod
     def get_by_id(id):
-        result = UrlDownloadManager.__connection.execute('SELECT id, url, is_downloaded FROM UrlDownload WHERE id ?', (id,))
+        result = UrlDownloadManager.__connection.execute('SELECT id, url, is_downloaded FROM UrlDownload WHERE id = ?', (id,))
         return Models.UrlDownload.UrlDownload(tuple=result[0]) if result else None
 
     @staticmethod
@@ -45,8 +45,9 @@ class UrlDownloadManager:
             'SELECT id, url, is_downloaded FROM UrlDownload WHERE is_downloaded = 0'
         )
         download_urls = []
-        for result in results:
-            download_url = Models.UrlDownload.UrlDownload(tuple=result)
-            download_urls.append(download_url)
+        if results:
+            for result in results:
+                download_url = Models.UrlDownload.UrlDownload(tuple=result)
+                download_urls.append(download_url)
 
         return download_urls if download_urls else None

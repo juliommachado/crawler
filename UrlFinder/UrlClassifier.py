@@ -24,8 +24,9 @@ class UrlClassifier:
         self.download_pattern = download_pattern
 
     def classify(self, url):
-        parsed_uri = urlparse(url.url)
-        if re.search(self.download_pattern, url):
+        uri = url.url
+        parsed_uri = urlparse(uri)
+        if re.search(self.download_pattern, uri):
             return UrlClasses.DOWNLOAD
         elif self.page_domain == parsed_uri.netloc:
             return UrlClasses.FETCH

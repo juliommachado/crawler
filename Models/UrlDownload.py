@@ -16,14 +16,14 @@ class UrlDownload:
     def __init__(self, url=None, is_downloaded=None, url_master=None, *args, **kwargs):
         if kwargs.has_key('tuple'):
             self.id = kwargs['tuple'][UrlDownload.ID_POSITION]
-            self.url = self.__set_url(self, url, url_master)
-            self.is_downloaded = is_downloaded
+            self.__set_url(kwargs['tuple'][UrlDownload.URL_POSITION], url_master)
+            self.is_downloaded = kwargs['tuple'][UrlDownload.IS_DOWNLOADED_POSITION]
         else:
             self.url = url
             self.is_downloaded = is_downloaded
 
     def save(self):
-        self.manager.save(self)
+        return self.manager.save(self)
 
     def get_host(self):
         parsed_uri = urlparse(self.url)

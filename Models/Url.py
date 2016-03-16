@@ -3,7 +3,7 @@ __author__ = 'rubico'
 from urlparse import urlparse, urljoin
 
 from Models.UrlDownload import UrlDownload
-from Models import UrlManager
+from Models.UrlManager import UrlManager
 
 
 class Url:
@@ -24,7 +24,7 @@ class Url:
             self.__set_url__(url, url_master)
 
     def save(self):
-        Url.manager.save(self)
+        return Url.manager.save(self)
 
     def get_host(self):
         parsed_uri = urlparse(self.url)

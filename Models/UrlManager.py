@@ -11,7 +11,7 @@ class UrlManager:
 
     @staticmethod
     def get_by_id(id):
-        result = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id ?', (id,))
+        result = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id = ?', (id,))
         return Models.Url.Url(tuple=result[0]) if result else None
 
     @staticmethod
@@ -43,8 +43,8 @@ class UrlManager:
     def get_pending_urls():
         results = UrlManager.__connection.execute('SELECT id, url FROM Url WHERE id NOT in (SELECT url_id FROM Page)')
         urls = []
-        for result in results:
-            url = Models.Url.Url(tuple=result)
-            urls.append(url)
-
+        if results:
+            for result in results:
+                url = Models.Url.Url(tuple=result)
+                urls.append(url)
         return urls if urls else None
